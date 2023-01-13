@@ -756,12 +756,10 @@ public abstract class AbstractMachine extends AbstractModelObject implements Mac
     }
 
     @Override
-    public void setSpeedLimitLow(double speedLimitLowPercent) {
-        // if (speedLimitLowPercent < 0 || speedLimitLowPercent > speedLimitHighPercent) {
-        //     throw new Exception("The lower speed limit is invalid.");
-        // }
-
-        this.speedLimitLow = speedLimitLowPercent;
+    public void setSpeedLimitLow(double speedLimitLow) {
+        Object oldValue = this.speedLimitLow;
+        this.speedLimitLow = speedLimitLow;
+        firePropertyChange("speedLimitLow", oldValue, speedLimitLow);
     }
 
     @Override
@@ -770,8 +768,10 @@ public abstract class AbstractMachine extends AbstractModelObject implements Mac
     }
 
     @Override
-    public void setSpeedLimitHigh(double speedLimitHighPercent) {
-        this.speedLimitHigh = speedLimitHighPercent;
+    public void setSpeedLimitHigh(double speedLimitHigh) {
+        Object oldValue = this.speedLimitHigh;
+        this.speedLimitHigh = speedLimitHigh;
+        firePropertyChange("speedLimitHigh", oldValue, speedLimitHigh);
     }
 
     @Override

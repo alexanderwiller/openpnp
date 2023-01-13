@@ -334,11 +334,11 @@ public interface Machine extends WizardConfigurable, PropertySheetHolder, Closea
 
     public double getSpeed();
 
-    public void setSpeedLimitLow(double speed);
+    public void setSpeedLimitLow(double speedLimitLow);
 
     public double getSpeedLimitLow();
 
-    public void setSpeedLimitHigh(double speed);
+    public void setSpeedLimitHigh(double speedLimitHigh);
 
     public double getSpeedLimitHigh();
     

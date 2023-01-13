@@ -68,6 +68,7 @@ import org.openpnp.util.BeanUtils;
 import org.openpnp.util.Cycles;
 import org.openpnp.util.MovableUtils;
 import org.openpnp.util.UiUtils;
+import org.pmw.tinylog.Logger;
 
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
@@ -350,6 +351,7 @@ public class JogControlsPanel extends JPanel {
         sliderIncrements.setMaximum(5);
 
         JButton yPlusButton = new JButton(yPlusAction);
+        
         yPlusButton.setHideActionText(true);
         panelControls.add(yPlusButton, "8, 4"); //$NON-NLS-1$
 
@@ -375,7 +377,11 @@ public class JogControlsPanel extends JPanel {
                     .setSpeed(speedSlider.getValue() * 0.01);
                 }
                 catch (Exception ex) {
-                    // TODO: I don't like this
+                    speedSlider.setValue((int) (Configuration.get()
+                    .getMachine()
+                    .getSpeed()
+                    * 100));
+                    Logger.error( "Secondary exception when executing pending motion planner commands");
                 };
             }
         });
@@ -772,17 +778,28 @@ public class JogControlsPanel extends JPanel {
     private ConfigurationListener configurationListener = new ConfigurationListener.Adapter() {
         @Override
         public void configurationComplete(Configuration configuration) throws Exception {
+            Machine machine = Configuration.get()
+            .getMachine();
+
             setUnits(configuration.getSystemUnits());
-            speedSlider.setMinimum((int) (configuration.getMachine().getSpeedLimitLow() * 100));
-            speedSlider.setMaximum((int) (configuration.getMachine().getSpeedLimitHigh() * 100));
-            speedSlider.setValue((int) (configuration.getMachine()
+            speedSlider.setMinimum((int) (machine.getSpeedLimitLow() * 100));
+            speedSlider.setMaximum((int) (machine.getSpeedLimitHigh() * 100));
+            speedSlider.setValue((int) (machine
                     .getSpeed()
                     * 100));
 
-            panelActuators.removeAll();
+            PropertyChangeListener speedLimitLowListener = (e) -> {
+                speedSlider.setMinimum((int) ((double)e.getNewValue() * 100));
+            };
+            BeanUtils.addPropertyChangeListener(machine, "speedLimitLow", speedLimitLowListener); //$NON-NLS-1$
+            
+            PropertyChangeListener speedLimitHighListener = (e) -> {
+                speedSlider.setMaximum((int) ((double)e.getNewValue() * 100));
+            };
+            BeanUtils.addPropertyChangeListener(machine, "speedLimitHigh", speedLimitHighListener); //$NON-NLS-1$
 
-            Machine machine = Configuration.get()
-                    .getMachine();
+
+            panelActuators.removeAll();
 
             for (Actuator actuator : machine.getActuators()) {
                 addActuator(actuator);
